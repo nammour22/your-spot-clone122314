@@ -1,32 +1,46 @@
 import { Home, Search, Library, Plus, Heart, Globe } from "lucide-react";
-import cover1 from "@/assets/cover1.jpg";
-import cover2 from "@/assets/cover2.jpg";
-import cover5 from "@/assets/cover5.jpg";
+import { useNavigate, useLocation } from "react-router-dom";
+import { playlists, albums } from "@/data/mockData";
+import { useState } from "react";
 
 const libraryItems = [
-  { name: "Liked Songs", type: "Playlist", pin: true, img: null, count: "312 songs" },
-  { name: "Summer Vibes", type: "Playlist", pin: false, img: cover1, count: "48 songs" },
-  { name: "Late Night Chill", type: "Playlist", pin: false, img: cover2, count: "65 songs" },
-  { name: "Dream State", type: "Album", pin: false, img: cover5, count: "Aurora Wave" },
-  { name: "Workout Energy", type: "Playlist", pin: false, img: null, count: "92 songs" },
-  { name: "Morning Coffee", type: "Playlist", pin: false, img: null, count: "34 songs" },
-  { name: "Road Trip", type: "Playlist", pin: false, img: null, count: "77 songs" },
+  { name: "Liked Songs", type: "Playlist", route: "/liked", img: null, count: "8 songs", isLiked: true },
+  ...playlists.slice(0, 5).map((pl) => ({
+    name: pl.title, type: "Playlist", route: `/playlist/${pl.id}`, img: pl.cover, count: `${pl.songIds.length} songs`, isLiked: false,
+  })),
+  ...albums.slice(0, 2).map((al) => ({
+    name: al.title, type: "Album", route: `/album/${al.id}`, img: al.cover, count: al.artist, isLiked: false,
+  })),
 ];
 
 interface SpotifySidebarProps {
   className?: string;
 }
 
+const filters = ["Playlists", "Albums", "Artists"];
+
 export default function SpotifySidebar({ className }: SpotifySidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [filter, setFilter] = useState("Playlists");
+
+  const isActive = (path: string) => location.pathname === path;
+
   return (
     <aside className={`flex flex-col gap-2 h-full ${className ?? ""}`}>
       {/* Nav Section */}
       <div className="bg-sidebar-card rounded-lg px-3 py-4 flex flex-col gap-5">
-        <button className="flex items-center gap-4 px-3 text-bright font-bold text-base hover:text-foreground transition-colors">
+        <button
+          onClick={() => navigate("/")}
+          className={`flex items-center gap-4 px-3 font-bold text-base hover:text-foreground transition-colors ${isActive("/") ? "text-bright" : "text-subdued"}`}
+        >
           <Home className="w-6 h-6" />
           <span>Home</span>
         </button>
-        <button className="flex items-center gap-4 px-3 text-subdued font-semibold text-base hover:text-foreground transition-colors">
+        <button
+          onClick={() => navigate("/search")}
+          className={`flex items-center gap-4 px-3 font-semibold text-base hover:text-foreground transition-colors ${isActive("/search") ? "text-bright" : "text-subdued"}`}
+        >
           <Search className="w-6 h-6" />
           <span>Search</span>
         </button>
@@ -35,7 +49,10 @@ export default function SpotifySidebar({ className }: SpotifySidebarProps) {
       {/* Library Section */}
       <div className="bg-sidebar-card rounded-lg flex-1 flex flex-col min-h-0">
         <div className="flex items-center justify-between px-4 py-3">
-          <button className="flex items-center gap-3 text-subdued hover:text-foreground transition-colors">
+          <button
+            onClick={() => navigate("/library")}
+            className={`flex items-center gap-3 hover:text-foreground transition-colors ${isActive("/library") ? "text-bright" : "text-subdued"}`}
+          >
             <Library className="w-6 h-6" />
             <span className="font-semibold text-base">Your Library</span>
           </button>
@@ -46,9 +63,15 @@ export default function SpotifySidebar({ className }: SpotifySidebarProps) {
 
         {/* Filter pills */}
         <div className="flex gap-2 px-4 pb-2">
-          <span className="nav-pill nav-pill-active text-xs">Playlists</span>
-          <span className="nav-pill nav-pill-inactive text-xs">Albums</span>
-          <span className="nav-pill nav-pill-inactive text-xs">Artists</span>
+          {filters.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`nav-pill text-xs ${filter === f ? "nav-pill-active" : "nav-pill-inactive"}`}
+            >
+              {f}
+            </button>
+          ))}
         </div>
 
         {/* Library list */}
@@ -56,9 +79,12 @@ export default function SpotifySidebar({ className }: SpotifySidebarProps) {
           {libraryItems.map((item) => (
             <button
               key={item.name}
-              className="flex items-center gap-3 w-full px-2 py-2 rounded-md hover:bg-surface-highlight transition-colors text-left"
+              onClick={() => navigate(item.route)}
+              className={`flex items-center gap-3 w-full px-2 py-2 rounded-md hover:bg-surface-highlight transition-colors text-left active:scale-[0.99] ${
+                location.pathname === item.route ? "bg-surface-highlight/60" : ""
+              }`}
             >
-              {item.name === "Liked Songs" ? (
+              {item.isLiked ? (
                 <div className="w-12 h-12 rounded-md bg-gradient-to-br from-[hsl(260,80%,60%)] to-[hsl(200,80%,70%)] flex items-center justify-center flex-shrink-0">
                   <Heart className="w-5 h-5 text-foreground fill-current" />
                 </div>
@@ -70,9 +96,9 @@ export default function SpotifySidebar({ className }: SpotifySidebarProps) {
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-sm font-medium text-bright truncate">{item.name}</p>
+                <p className={`text-sm font-medium truncate ${location.pathname === item.route ? "text-primary" : "text-bright"}`}>{item.name}</p>
                 <p className="text-xs text-subdued truncate">
-                  {item.pin && "📌 "}{item.type} · {item.count}
+                  {item.type} · {item.count}
                 </p>
               </div>
             </button>
