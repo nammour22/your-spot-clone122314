@@ -1,6 +1,7 @@
 import { Play, Pause, Heart, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { useApp } from "@/contexts/AppContext";
 import { type Song, formatDuration } from "@/data/mockData";
 import { toast } from "sonner";
 
@@ -13,9 +14,11 @@ interface TrackRowProps {
 }
 
 export default function TrackRow({ song, index, queue, showAlbum = true, showCover = true }: TrackRowProps) {
-  const { currentSong, isPlaying, playSong, togglePlay, toggleLike } = usePlayer();
+  const { currentSong, isPlaying, playSong, togglePlay } = usePlayer();
+  const { isLiked, toggleLike } = useApp();
   const navigate = useNavigate();
   const isActive = currentSong?.id === song.id;
+  const liked = isLiked(song.id);
 
   const handleClick = () => {
     if (isActive) {
@@ -28,7 +31,7 @@ export default function TrackRow({ song, index, queue, showAlbum = true, showCov
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleLike(song.id);
-    toast(song.liked ? "Removed from Liked Songs" : "Added to Liked Songs");
+    toast(liked ? "Removed from Liked Songs" : "Added to Liked Songs");
   };
 
   return (
@@ -86,9 +89,9 @@ export default function TrackRow({ song, index, queue, showAlbum = true, showCov
       {/* Like */}
       <button
         onClick={handleLike}
-        className={`transition-colors ${song.liked ? "text-primary" : "text-subdued opacity-0 group-hover:opacity-100"}`}
+        className={`transition-colors ${liked ? "text-primary" : "text-subdued opacity-0 group-hover:opacity-100"}`}
       >
-        <Heart className={`w-4 h-4 ${song.liked ? "fill-current" : ""}`} />
+        <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
       </button>
 
       {/* Duration */}

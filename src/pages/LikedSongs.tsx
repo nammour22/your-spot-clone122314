@@ -1,17 +1,19 @@
 import { Play, Pause, Shuffle, Heart, Clock } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { getLikedSongs } from "@/data/mockData";
+import { useApp } from "@/contexts/AppContext";
 import TrackRow from "@/components/shared/TrackRow";
 
 export default function LikedSongsPage() {
-  const likedSongs = getLikedSongs();
+  const { getLikedSongs, likedCount } = useApp();
   const { playQueue, currentSong, isPlaying, togglePlay } = usePlayer();
+
+  const likedSongs = getLikedSongs();
   const isCurrentLiked = likedSongs.some((s) => s.id === currentSong?.id);
   const totalDuration = likedSongs.reduce((sum, s) => sum + s.duration, 0);
 
   const handlePlay = () => {
     if (isCurrentLiked && isPlaying) togglePlay();
-    else playQueue(likedSongs);
+    else if (likedSongs.length > 0) playQueue(likedSongs);
   };
 
   return (
@@ -23,7 +25,7 @@ export default function LikedSongsPage() {
         <div className="text-center md:text-left">
           <p className="text-xs font-semibold uppercase text-subdued tracking-wider mb-2">Playlist</p>
           <h1 className="text-3xl md:text-5xl font-bold text-bright mb-4" style={{ lineHeight: 1.05 }}>Liked Songs</h1>
-          <p className="text-sm text-subdued">{likedSongs.length} songs, {Math.floor(totalDuration / 60)} min</p>
+          <p className="text-sm text-subdued">{likedCount} songs, {Math.floor(totalDuration / 60)} min</p>
         </div>
       </div>
 
@@ -31,7 +33,7 @@ export default function LikedSongsPage() {
         <button onClick={handlePlay} className="w-14 h-14 rounded-full bg-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-lg">
           {isCurrentLiked && isPlaying ? <Pause className="w-6 h-6 text-primary-foreground fill-current" /> : <Play className="w-6 h-6 text-primary-foreground fill-current ml-1" />}
         </button>
-        <button onClick={() => playQueue([...likedSongs].sort(() => Math.random() - 0.5))} className="text-subdued hover:text-bright transition-colors">
+        <button onClick={() => { if (likedSongs.length > 0) playQueue([...likedSongs].sort(() => Math.random() - 0.5)); }} className="text-subdued hover:text-bright transition-colors">
           <Shuffle className="w-6 h-6" />
         </button>
       </div>

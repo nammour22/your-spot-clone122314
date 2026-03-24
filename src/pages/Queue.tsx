@@ -1,13 +1,17 @@
-import { X, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1, Heart, ListMusic, ChevronDown } from "lucide-react";
+import { X, Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, Repeat1, Heart, ListMusic } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { useApp } from "@/contexts/AppContext";
 import { formatDuration } from "@/data/mockData";
 import TrackRow from "@/components/shared/TrackRow";
 import { toast } from "sonner";
 import { useState } from "react";
 
 export default function QueuePage() {
-  const { currentSong, queue, isPlaying, togglePlay, nextTrack, prevTrack, progress, setProgress, shuffle, toggleShuffle, repeat, cycleRepeat, toggleLike, removeFromQueue } = usePlayer();
+  const { currentSong, queue, isPlaying, togglePlay, nextTrack, prevTrack, progress, setProgress, shuffle, toggleShuffle, repeat, cycleRepeat, removeFromQueue } = usePlayer();
+  const { isLiked, toggleLike } = useApp();
   const [tab, setTab] = useState<"playing" | "queue">("playing");
+
+  const currentLiked = currentSong ? isLiked(currentSong.id) : false;
 
   return (
     <div className="flex-1 overflow-y-auto bg-gradient-to-b from-[hsl(0,0%,14%)] via-[hsl(0,0%,7%)] to-background rounded-lg">
@@ -70,10 +74,10 @@ export default function QueuePage() {
 
             {/* Like */}
             <button
-              onClick={() => { toggleLike(currentSong.id); toast(currentSong.liked ? "Removed from Liked Songs" : "Added to Liked Songs"); }}
-              className={`transition-colors ${currentSong.liked ? "text-primary" : "text-subdued hover:text-bright"}`}
+              onClick={() => { toggleLike(currentSong.id); toast(currentLiked ? "Removed from Liked Songs" : "Added to Liked Songs"); }}
+              className={`transition-colors ${currentLiked ? "text-primary" : "text-subdued hover:text-bright"}`}
             >
-              <Heart className={`w-6 h-6 ${currentSong.liked ? "fill-current" : ""}`} />
+              <Heart className={`w-6 h-6 ${currentLiked ? "fill-current" : ""}`} />
             </button>
           </div>
         )}
