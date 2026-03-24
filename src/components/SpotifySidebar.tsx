@@ -14,7 +14,7 @@ export default function SpotifySidebar({ className }: SpotifySidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { likedCount } = useApp();
-  const [filter, setFilter] = React.useState("Playlists");
+  const [filter, setFilter] = useState("Playlists");
 
   const isActive = (path: string) => location.pathname === path;
 
