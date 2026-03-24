@@ -1,17 +1,8 @@
-import { Home, Search, Library, Plus, Heart, Globe } from "lucide-react";
+import React, { useState } from "react";
+import { Home, Search, Library, Plus, Heart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useApp } from "@/contexts/AppContext";
 import { playlists, albums } from "@/data/mockData";
-import { useState } from "react";
-
-const libraryItems = [
-  { name: "Liked Songs", type: "Playlist", route: "/liked", img: null, count: "8 songs", isLiked: true },
-  ...playlists.slice(0, 5).map((pl) => ({
-    name: pl.title, type: "Playlist", route: `/playlist/${pl.id}`, img: pl.cover, count: `${pl.songIds.length} songs`, isLiked: false,
-  })),
-  ...albums.slice(0, 2).map((al) => ({
-    name: al.title, type: "Album", route: `/album/${al.id}`, img: al.cover, count: al.artist, isLiked: false,
-  })),
-];
 
 interface SpotifySidebarProps {
   className?: string;
@@ -22,9 +13,20 @@ const filters = ["Playlists", "Albums", "Artists"];
 export default function SpotifySidebar({ className }: SpotifySidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { likedCount } = useApp();
   const [filter, setFilter] = useState("Playlists");
 
   const isActive = (path: string) => location.pathname === path;
+
+  const libraryItems = [
+    { name: "Liked Songs", type: "Playlist", route: "/liked", img: null, count: `${likedCount} songs`, isLiked: true },
+    ...playlists.slice(0, 5).map((pl) => ({
+      name: pl.title, type: "Playlist", route: `/playlist/${pl.id}`, img: pl.cover, count: `${pl.songIds.length} songs`, isLiked: false,
+    })),
+    ...albums.slice(0, 2).map((al) => ({
+      name: al.title, type: "Album", route: `/album/${al.id}`, img: al.cover, count: al.artist, isLiked: false,
+    })),
+  ];
 
   return (
     <aside className={`flex flex-col gap-2 h-full ${className ?? ""}`}>
@@ -91,9 +93,7 @@ export default function SpotifySidebar({ className }: SpotifySidebarProps) {
               ) : item.img ? (
                 <img src={item.img} alt={item.name} className="w-12 h-12 rounded-md object-cover flex-shrink-0" />
               ) : (
-                <div className="w-12 h-12 rounded-md bg-surface-highlight flex items-center justify-center flex-shrink-0">
-                  <Globe className="w-5 h-5 text-subdued" />
-                </div>
+                <div className="w-12 h-12 rounded-md bg-surface-highlight flex items-center justify-center flex-shrink-0" />
               )}
               <div className="min-w-0">
                 <p className={`text-sm font-medium truncate ${location.pathname === item.route ? "text-primary" : "text-bright"}`}>{item.name}</p>
@@ -108,3 +108,5 @@ export default function SpotifySidebar({ className }: SpotifySidebarProps) {
     </aside>
   );
 }
+
+

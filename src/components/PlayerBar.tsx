@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Play, Pause, SkipBack, SkipForward, Repeat, Repeat1, Shuffle,
-  Volume2, VolumeX, Maximize2, ListMusic, MonitorSpeaker, Heart, PictureInPicture2,
+  Volume2, VolumeX, Maximize2, ListMusic, MonitorSpeaker, Heart,
 } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { useApp } from "@/contexts/AppContext";
 import { formatDuration } from "@/data/mockData";
 import { toast } from "sonner";
 
@@ -13,12 +13,13 @@ export default function PlayerBar() {
     currentSong, isPlaying, togglePlay, nextTrack, prevTrack,
     progress, setProgress, volume, setVolume,
     shuffle, toggleShuffle, repeat, cycleRepeat,
-    toggleLike, setShowFullPlayer,
   } = usePlayer();
+  const { isLiked, toggleLike } = useApp();
   const navigate = useNavigate();
 
   if (!currentSong) return null;
 
+  const liked = isLiked(currentSong.id);
   const elapsed = Math.floor(currentSong.duration * progress / 100);
 
   return (
@@ -43,11 +44,11 @@ export default function PlayerBar() {
           onClick={(e) => {
             e.stopPropagation();
             toggleLike(currentSong.id);
-            toast(currentSong.liked ? "Removed from Liked Songs" : "Added to Liked Songs");
+            toast(liked ? "Removed from Liked Songs" : "Added to Liked Songs");
           }}
-          className={`hidden sm:block ml-1 transition-colors ${currentSong.liked ? "text-primary" : "text-subdued hover:text-bright"}`}
+          className={`hidden sm:block ml-1 transition-colors ${liked ? "text-primary" : "text-subdued hover:text-bright"}`}
         >
-          <Heart className={`w-4 h-4 ${currentSong.liked ? "fill-current" : ""}`} />
+          <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} />
         </button>
       </div>
 

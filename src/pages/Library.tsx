@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Plus, LayoutGrid, List, Globe } from "lucide-react";
+import { Heart, Plus, LayoutGrid, List } from "lucide-react";
 import FilterPills from "@/components/shared/FilterPills";
 import MediaCard from "@/components/shared/MediaCard";
+import { useApp } from "@/contexts/AppContext";
 import { playlists, albums, artists, getSongsByIds } from "@/data/mockData";
 
 const filters = ["Playlists", "Albums", "Artists"];
@@ -11,6 +12,7 @@ export default function LibraryPage() {
   const [filter, setFilter] = useState("Playlists");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const navigate = useNavigate();
+  const { likedCount } = useApp();
 
   return (
     <div className="flex-1 overflow-y-auto bg-gradient-to-b from-[hsl(0,0%,14%)] via-[hsl(0,0%,7%)] to-background rounded-lg">
@@ -45,7 +47,7 @@ export default function LibraryPage() {
             </div>
             <div className="text-left">
               <p className="text-lg font-bold text-bright">Liked Songs</p>
-              <p className="text-sm text-subdued">8 songs</p>
+              <p className="text-sm text-subdued">{likedCount} songs</p>
             </div>
           </button>
         )}

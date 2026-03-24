@@ -1,17 +1,17 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Play, Pause, UserPlus, MoreHorizontal, CheckCircle2 } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { useApp } from "@/contexts/AppContext";
 import { getArtistById, getArtistSongs, getArtistAlbums, artists, formatNumber, getSongsByIds } from "@/data/mockData";
 import TrackRow from "@/components/shared/TrackRow";
 import MediaCard from "@/components/shared/MediaCard";
 import { toast } from "sonner";
-import { useState } from "react";
 
 export default function ArtistPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { playQueue, currentSong, isPlaying, togglePlay } = usePlayer();
-  const [following, setFollowing] = useState(false);
+  const { isFollowing, toggleFollow } = useApp();
 
   const artist = getArtistById(id || "");
   if (!artist) {
@@ -22,6 +22,7 @@ export default function ArtistPage() {
     );
   }
 
+  const following = isFollowing(artist.id);
   const artistSongs = getArtistSongs(artist.id);
   const artistAlbums = getArtistAlbums(artist.id);
   const relatedArtists = artists.filter((a) => a.id !== artist.id).slice(0, 5);
@@ -56,7 +57,7 @@ export default function ArtistPage() {
           {isCurrentArtist && isPlaying ? <Pause className="w-6 h-6 text-primary-foreground fill-current" /> : <Play className="w-6 h-6 text-primary-foreground fill-current ml-1" />}
         </button>
         <button
-          onClick={() => { setFollowing(!following); toast(following ? "Unfollowed" : "Following"); }}
+          onClick={() => { toggleFollow(artist.id); toast(following ? "Unfollowed" : "Following"); }}
           className={`px-6 py-2 rounded-full border text-sm font-semibold transition-colors ${following ? "border-primary text-primary" : "border-border text-bright hover:border-foreground"}`}
         >
           {following ? "Following" : "Follow"}

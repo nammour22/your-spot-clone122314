@@ -9,7 +9,6 @@ interface PlayerState {
   volume: number;
   shuffle: boolean;
   repeat: "off" | "all" | "one";
-  showFullPlayer: boolean;
 }
 
 interface PlayerContextValue extends PlayerState {
@@ -22,8 +21,8 @@ interface PlayerContextValue extends PlayerState {
   setVolume: (v: number) => void;
   toggleShuffle: () => void;
   cycleRepeat: () => void;
-  toggleLike: (songId: string) => void;
   setShowFullPlayer: (show: boolean) => void;
+  showFullPlayer: boolean;
   addToQueue: (song: Song) => void;
   removeFromQueue: (index: number) => void;
 }
@@ -31,7 +30,7 @@ interface PlayerContextValue extends PlayerState {
 const PlayerContext = createContext<PlayerContextValue | null>(null);
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<PlayerState>({
+  const [state, setState] = useState<PlayerState & { showFullPlayer: boolean }>({
     currentSong: songs[0],
     queue: songs.slice(0, 5),
     isPlaying: false,
@@ -105,19 +104,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
-  const toggleLike = useCallback((songId: string) => {
-    setState((s) => {
-      const song = s.currentSong?.id === songId
-        ? { ...s.currentSong, liked: !s.currentSong.liked }
-        : s.currentSong;
-      return {
-        ...s,
-        currentSong: song,
-        queue: s.queue.map((t) => t.id === songId ? { ...t, liked: !t.liked } : t),
-      };
-    });
-  }, []);
-
   const setShowFullPlayer = useCallback((show: boolean) => {
     setState((s) => ({ ...s, showFullPlayer: show }));
   }, []);
@@ -146,7 +132,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         setVolume,
         toggleShuffle,
         cycleRepeat,
-        toggleLike,
         setShowFullPlayer,
         addToQueue,
         removeFromQueue,

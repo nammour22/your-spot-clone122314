@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Search as SearchIcon, X, Clock } from "lucide-react";
-import { searchAll, songs, albums, artists, playlists, getSongsByIds } from "@/data/mockData";
+import { searchAll, getSongsByIds } from "@/data/mockData";
+import { useApp } from "@/contexts/AppContext";
 import FilterPills from "@/components/shared/FilterPills";
 import MediaCard from "@/components/shared/MediaCard";
 import TrackRow from "@/components/shared/TrackRow";
@@ -25,7 +26,7 @@ const filters = ["All", "Songs", "Albums", "Artists", "Playlists"];
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
-  const [recentSearches, setRecentSearches] = useState<string[]>(["Crimson Waves", "Dream State", "Neon Pulse"]);
+  const { recentSearches, addRecentSearch, removeRecentSearch, clearRecentSearches } = useApp();
 
   const results = useMemo(() => {
     if (!query.trim()) return null;
@@ -36,9 +37,7 @@ export default function SearchPage() {
 
   const handleSearch = (term: string) => {
     setQuery(term);
-    if (term && !recentSearches.includes(term)) {
-      setRecentSearches((prev) => [term, ...prev].slice(0, 5));
-    }
+    if (term.trim()) addRecentSearch(term);
   };
 
   return (
@@ -50,7 +49,8 @@ export default function SearchPage() {
           <input
             type="text"
             value={query}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && query.trim()) addRecentSearch(query); }}
             placeholder="What do you want to listen to?"
             className="w-full h-12 pl-12 pr-10 rounded-full bg-surface-highlight border-none text-bright placeholder:text-subdued focus:outline-none focus:ring-2 focus:ring-primary text-sm"
           />
@@ -67,16 +67,27 @@ export default function SearchPage() {
             {/* Recent Searches */}
             {recentSearches.length > 0 && (
               <section className="mb-8">
-                <h2 className="text-xl font-bold text-bright mb-4">Recent searches</h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-bright">Recent searches</h2>
+                  <button onClick={clearRecentSearches} className="text-sm font-semibold text-subdued hover:text-bright transition-colors">
+                    Clear all
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {recentSearches.map((s) => (
                     <button
                       key={s}
                       onClick={() => handleSearch(s)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-highlight hover:bg-surface-press text-sm text-bright transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-highlight hover:bg-surface-press text-sm text-bright transition-colors group"
                     >
                       <Clock className="w-4 h-4 text-subdued" />
                       {s}
+                      <span
+                        onClick={(e) => { e.stopPropagation(); removeRecentSearch(s); }}
+                        className="ml-1 text-subdued hover:text-bright opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -113,7 +124,6 @@ export default function SearchPage() {
 
             {hasResults && (
               <div className="mt-6 space-y-8">
-                {/* Songs */}
                 {(filter === "All" || filter === "Songs") && results!.songs.length > 0 && (
                   <section>
                     <h3 className="text-lg font-bold text-bright mb-3">Songs</h3>
@@ -123,7 +133,6 @@ export default function SearchPage() {
                   </section>
                 )}
 
-                {/* Artists */}
                 {(filter === "All" || filter === "Artists") && results!.artists.length > 0 && (
                   <section>
                     <h3 className="text-lg font-bold text-bright mb-3">Artists</h3>
@@ -137,7 +146,6 @@ export default function SearchPage() {
                   </section>
                 )}
 
-                {/* Albums */}
                 {(filter === "All" || filter === "Albums") && results!.albums.length > 0 && (
                   <section>
                     <h3 className="text-lg font-bold text-bright mb-3">Albums</h3>
@@ -151,7 +159,6 @@ export default function SearchPage() {
                   </section>
                 )}
 
-                {/* Playlists */}
                 {(filter === "All" || filter === "Playlists") && results!.playlists.length > 0 && (
                   <section>
                     <h3 className="text-lg font-bold text-bright mb-3">Playlists</h3>
