@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Home, Search, Library, Plus, Heart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
