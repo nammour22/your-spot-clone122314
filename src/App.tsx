@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppProvider } from "@/contexts/AppContext";
 import { PlayerProvider } from "@/contexts/PlayerContext";
 import AppLayout from "@/components/AppLayout";
 import LoginPage from "@/pages/Login";
@@ -23,26 +24,28 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
-      <PlayerProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/library" element={<LibraryPage />} />
-              <Route path="/playlist/:id" element={<PlaylistPage />} />
-              <Route path="/album/:id" element={<AlbumPage />} />
-              <Route path="/artist/:id" element={<ArtistPage />} />
-              <Route path="/liked" element={<LikedSongsPage />} />
-              <Route path="/queue" element={<QueuePage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </PlayerProvider>
+      <AppProvider>
+        <PlayerProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/playlist/:id" element={<PlaylistPage />} />
+                <Route path="/album/:id" element={<AlbumPage />} />
+                <Route path="/artist/:id" element={<ArtistPage />} />
+                <Route path="/liked" element={<LikedSongsPage />} />
+                <Route path="/queue" element={<QueuePage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </PlayerProvider>
+      </AppProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
