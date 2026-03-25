@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Play, Pause, Heart, MoreHorizontal, Clock } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { getAlbumById, getSongsByIds, formatDuration } from "@/data/mockData";
+import { useApp } from "@/contexts/AppContext";
+import { getAlbumById, getSongsByIds } from "@/data/mockData";
 import TrackRow from "@/components/shared/TrackRow";
 import { toast } from "sonner";
 
