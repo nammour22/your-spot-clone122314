@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Play, Pause, Heart, MoreHorizontal, Clock } from "lucide-react";
+import { Play, Pause, Heart, MoreHorizontal } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { getAlbumById, getSongsByIds, formatDuration } from "@/data/mockData";
+import { useApp } from "@/contexts/AppContext";
+import { getAlbumById, getSongsByIds } from "@/data/mockData";
 import TrackRow from "@/components/shared/TrackRow";
 import { toast } from "sonner";
 
@@ -9,6 +10,7 @@ export default function AlbumPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { playQueue, currentSong, isPlaying, togglePlay } = usePlayer();
+  const { isAlbumSaved, toggleSaveAlbum } = useApp();
 
   const album = getAlbumById(id || "");
   if (!album) {
@@ -22,6 +24,7 @@ export default function AlbumPage() {
   const trackList = getSongsByIds(album.songIds);
   const totalDuration = trackList.reduce((sum, s) => sum + s.duration, 0);
   const isCurrentAlbum = trackList.some((s) => s.id === currentSong?.id);
+  const saved = isAlbumSaved(album.id);
 
   const handlePlayAll = () => {
     if (isCurrentAlbum && isPlaying) togglePlay();
@@ -46,7 +49,15 @@ export default function AlbumPage() {
         <button onClick={handlePlayAll} className="w-14 h-14 rounded-full bg-primary flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-lg">
           {isCurrentAlbum && isPlaying ? <Pause className="w-6 h-6 text-primary-foreground fill-current" /> : <Play className="w-6 h-6 text-primary-foreground fill-current ml-1" />}
         </button>
-        <button onClick={() => toast("Saved to library!")} className="text-subdued hover:text-primary transition-colors"><Heart className="w-6 h-6" /></button>
+        <button
+          onClick={() => {
+            toggleSaveAlbum(album.id);
+            toast(saved ? "Removed from Your Library" : "Saved to Your Library");
+          }}
+          className={`transition-colors ${saved ? "text-primary" : "text-subdued hover:text-primary"}`}
+        >
+          <Heart className={`w-6 h-6 ${saved ? "fill-current" : ""}`} />
+        </button>
         <button onClick={() => toast("More options coming soon")} className="text-subdued hover:text-bright transition-colors"><MoreHorizontal className="w-6 h-6" /></button>
       </div>
 

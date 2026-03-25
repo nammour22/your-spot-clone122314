@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Play, Pause, Heart, MoreHorizontal, Clock, Shuffle } from "lucide-react";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { getPlaylistById, getSongsByIds, formatDuration } from "@/data/mockData";
+import { useApp } from "@/contexts/AppContext";
+import { getPlaylistById, getSongsByIds } from "@/data/mockData";
 import TrackRow from "@/components/shared/TrackRow";
 import { toast } from "sonner";
 
@@ -9,6 +10,7 @@ export default function PlaylistPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { playQueue, currentSong, isPlaying, togglePlay } = usePlayer();
+  const { isPlaylistSaved, toggleSavePlaylist } = useApp();
 
   const playlist = getPlaylistById(id || "");
   if (!playlist) {
@@ -22,6 +24,7 @@ export default function PlaylistPage() {
   const trackList = getSongsByIds(playlist.songIds);
   const totalDuration = trackList.reduce((sum, s) => sum + s.duration, 0);
   const isCurrentPlaylist = trackList.some((s) => s.id === currentSong?.id);
+  const saved = isPlaylistSaved(playlist.id);
 
   const handlePlayAll = () => {
     if (isCurrentPlaylist && isPlaying) {
@@ -61,8 +64,14 @@ export default function PlaylistPage() {
         <button onClick={() => playQueue([...trackList].sort(() => Math.random() - 0.5))} className="text-subdued hover:text-bright transition-colors">
           <Shuffle className="w-6 h-6" />
         </button>
-        <button onClick={() => toast("Liked playlist!")} className="text-subdued hover:text-primary transition-colors">
-          <Heart className="w-6 h-6" />
+        <button
+          onClick={() => {
+            toggleSavePlaylist(playlist.id);
+            toast(saved ? "Removed from Your Library" : "Saved to Your Library");
+          }}
+          className={`transition-colors ${saved ? "text-primary" : "text-subdued hover:text-primary"}`}
+        >
+          <Heart className={`w-6 h-6 ${saved ? "fill-current" : ""}`} />
         </button>
         <button onClick={() => toast("More options coming soon")} className="text-subdued hover:text-bright transition-colors">
           <MoreHorizontal className="w-6 h-6" />

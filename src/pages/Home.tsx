@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { usePlayer } from "@/contexts/PlayerContext";
 import MediaCard from "@/components/shared/MediaCard";
 import SectionHeader from "@/components/shared/SectionHeader";
-import { songs, albums, artists, playlists, getSongsByIds, getLikedSongs } from "@/data/mockData";
+import { albums, artists, playlists, getSongsByIds } from "@/data/mockData";
 
 const quickPicks = [
   { name: "Liked Songs", route: "/liked", gradient: "from-[hsl(260,80%,50%)] to-[hsl(200,80%,60%)]", icon: true },

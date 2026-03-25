@@ -153,9 +153,7 @@ export function getArtistAlbums(artistId: string): Album[] {
   return albums.filter((a) => a.artistId === artistId);
 }
 
-export function getLikedSongs(): Song[] {
-  return songs.filter((s) => s.liked);
-}
+// Liked songs are now managed by AppContext — use useApp().getLikedSongs() instead
 
 export function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
